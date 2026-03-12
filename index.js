@@ -41,6 +41,28 @@ app.get("/", (req, res) => {
   res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "3.0" });
 });
 
+app.get("/teste-kommo", async (req, res) => {
+  try {
+    const token = process.env.KOMMO_LONG_LIVED_TOKEN;
+    const subdomain = process.env.KOMMO_SUBDOMAIN;
+    console.log("Testando token Kommo...");
+    console.log("Subdomain:", subdomain);
+    console.log("Token (primeiros 20 chars):", token?.substring(0, 20));
+
+    const response = await fetch(`https://${subdomain}.kommo.com/api/v4/account`, {
+      headers: {
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    const text = await response.text();
+    console.log("Resposta teste:", text.substring(0, 500));
+    res.send(text);
+  } catch(e) {
+    res.json({ erro: e.message });
+  }
+});
+
 app.get("/leads", async (req, res) => {
   try {
     const leads = await buscarLeadsRoberto();
@@ -141,3 +163,4 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Sistema Roberto backend v3.0 rodando na porta ${PORT}`);
 });
+```
