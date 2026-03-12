@@ -4,6 +4,15 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// CORS — permite requisições do Lovable
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.status(200).end();
+  next();
+});
+
 app.get("/", (req, res) => {
   res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "1.0" });
 });
@@ -14,12 +23,10 @@ app.post("/webhook/kommo", (req, res) => {
 
   try {
     const processarLead = (lead) => {
-      const etiquetas = lead.tags || lead.custom_fields || [];
       const temEtiquetaRoberto = JSON.stringify(lead).toLowerCase().includes("roberto");
-      
       if (!temEtiquetaRoberto) {
         console.log(`⏭️ Lead ignorado — não é do Roberto: ${lead.name}`);
-        return;
+        return false;
       }
       return true;
     };
@@ -28,7 +35,6 @@ app.post("/webhook/kommo", (req, res) => {
       payload.leads.add.forEach((lead) => {
         if (processarLead(lead)) {
           console.log(`🆕 Novo lead do Roberto: ${lead.name} | ID: ${lead.id}`);
-          // TODO: Alerta pro Roberto
         }
       });
     }
@@ -51,8 +57,7 @@ app.post("/webhook/kommo", (req, res) => {
 
     if (payload.message?.add) {
       payload.message.add.forEach((msg) => {
-        console.log(`💬 Mensagem recebida: ${msg.author?.name} | ${msg.text}`);
-        // TODO: Passar pro agente Roberto responder
+        console.log(`💬 Mensagem: ${msg.author?.name} | ${msg.text}`);
       });
     }
 
@@ -84,7 +89,6 @@ app.post("/webhook/whatsapp", async (req, res) => {
     const mensagem = payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (mensagem) {
       console.log(`📩 De: ${mensagem.from} | Texto: ${mensagem.text?.body}`);
-      // TODO: Passar pro agente Roberto responder
     }
     res.status(200).json({ ok: true });
   } catch (error) {
@@ -114,7 +118,9 @@ app.post("/pedro/chat", async (req, res) => {
     });
 
     const data = await response.json();
+    console.log("Pedro respondeu:", data.content?.[0]?.text);
     res.json({ resposta: data.content?.[0]?.text, ok: true });
+
   } catch (error) {
     console.error("Erro Pedro:", error);
     res.status(500).json({ erro: "Erro ao processar mensagem" });
