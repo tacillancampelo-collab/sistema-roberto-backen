@@ -4,7 +4,7 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// CORS — permite requisições do Lovable
+// CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -13,19 +13,82 @@ app.use((req, res, next) => {
   next();
 });
 
+// ─────────────────────────────────────────
+// HELPERS KOMMO
+// ─────────────────────────────────────────
+const kommoRequest = async (endpoint, method = "GET", body = null) => {
+  const BASE = `https://${process.env.KOMMO_SUBDOMAIN}.kommo.com/api/v4`;
+  const options = {
+    method,
+    headers: {
+      "Authorization": `Bearer ${process.env.KOMMO_LONG_LIVED_TOKEN}`,
+      "Content-Type": "application/json"
+    }
+  };
+  if (body) options.body = JSON.stringify(body);
+  const response = await fetch(`${BASE}${endpoint}`, options);
+  return response.json();
+};
+
+const buscarLeadsRoberto = async () => {
+  const data = await kommoRequest("/leads?with=contacts,tags&limit=50");
+  const leads = data?._embedded?.leads || [];
+  return leads.filter(lead => {
+    const tags = lead.tags || lead._embedded?.tags || [];
+    return tags.some(tag => tag.name?.toLowerCase() === "roberto");
+  });
+};
+
+const buscarConversa = async (leadId) => {
+  const data = await kommoRequest(`/leads/${leadId}?with=contacts,notes,tags`);
+  return data;
+};
+
+// ─────────────────────────────────────────
+// STATUS
+// ─────────────────────────────────────────
 app.get("/", (req, res) => {
-  res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "1.0" });
+  res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "2.0" });
 });
 
+// ─────────────────────────────────────────
+// LEADS DO ROBERTO
+// ─────────────────────────────────────────
+app.get("/leads", async (req, res) => {
+  try {
+    const leads = await buscarLeadsRoberto();
+    res.json({ leads, total: leads.length, ok: true });
+  } catch (error) {
+    console.error("Erro ao buscar leads:", error);
+    res.status(500).json({ erro: "Erro ao buscar leads do Kommo" });
+  }
+});
+
+// ─────────────────────────────────────────
+// CONVERSA DE UM LEAD
+// ─────────────────────────────────────────
+app.get("/leads/:id", async (req, res) => {
+  try {
+    const lead = await buscarConversa(req.params.id);
+    res.json({ lead, ok: true });
+  } catch (error) {
+    console.error("Erro ao buscar conversa:", error);
+    res.status(500).json({ erro: "Erro ao buscar conversa" });
+  }
+});
+
+// ─────────────────────────────────────────
+// WEBHOOK KOMMO
+// ─────────────────────────────────────────
 app.post("/webhook/kommo", (req, res) => {
   const payload = req.body;
-  console.log("📥 Webhook Kommo recebido:", JSON.stringify(payload, null, 2));
+  console.log("📥 Webhook Kommo:", JSON.stringify(payload, null, 2));
 
   try {
     const processarLead = (lead) => {
-      const temEtiquetaRoberto = JSON.stringify(lead).toLowerCase().includes("roberto");
-      if (!temEtiquetaRoberto) {
-        console.log(`⏭️ Lead ignorado — não é do Roberto: ${lead.name}`);
+      const temRoberto = JSON.stringify(lead).toLowerCase().includes("roberto");
+      if (!temRoberto) {
+        console.log(`⏭️ Ignorado — não é do Roberto: ${lead.name}`);
         return false;
       }
       return true;
@@ -42,15 +105,7 @@ app.post("/webhook/kommo", (req, res) => {
     if (payload.leads?.status) {
       payload.leads.status.forEach((lead) => {
         if (processarLead(lead)) {
-          console.log(`🔄 Lead do Roberto mudou de etapa: ${lead.name}`);
-        }
-      });
-    }
-
-    if (payload.leads?.update) {
-      payload.leads.update.forEach((lead) => {
-        if (processarLead(lead)) {
-          console.log(`✏️ Lead do Roberto atualizado: ID ${lead.id}`);
+          console.log(`🔄 Lead mudou de etapa: ${lead.name}`);
         }
       });
     }
@@ -62,13 +117,15 @@ app.post("/webhook/kommo", (req, res) => {
     }
 
     res.status(200).json({ ok: true });
-
   } catch (error) {
-    console.error("Erro no webhook Kommo:", error);
+    console.error("Erro webhook Kommo:", error);
     res.status(200).json({ ok: true });
   }
 });
 
+// ─────────────────────────────────────────
+// WEBHOOK WHATSAPP
+// ─────────────────────────────────────────
 app.get("/webhook/whatsapp", (req, res) => {
   const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "sistema-roberto-2024";
   const mode = req.query["hub.mode"];
@@ -97,11 +154,32 @@ app.post("/webhook/whatsapp", async (req, res) => {
   }
 });
 
+// ─────────────────────────────────────────
+// PEDRO — com contexto do Kommo
+// ─────────────────────────────────────────
 app.post("/pedro/chat", async (req, res) => {
   const { mensagem, historico } = req.body;
   if (!mensagem) return res.status(400).json({ erro: "Mensagem não informada" });
 
   try {
+    // Busca leads do Roberto pra passar pro Pedro
+    let contextoLeads = "";
+    try {
+      const leads = await buscarLeadsRoberto();
+      const agora = Date.now() / 1000;
+      const leadsParados = leads.filter(l => {
+        const ultimaAtividade = l.updated_at || 0;
+        const horasSemAtividade = (agora - ultimaAtividade) / 3600;
+        return horasSemAtividade > 24;
+      });
+
+      contextoLeads = `\n\nDADOS ATUAIS DO KOMMO:\n- Total de leads do Roberto: ${leads.length}\n- Leads parados há mais de 24h: ${leadsParados.length}\n- Leads: ${leads.map(l => `${l.name} (ID: ${l.id})`).join(", ")}`;
+    } catch (e) {
+      console.log("Não foi possível buscar leads:", e.message);
+    }
+
+    const systemPrompt = (process.env.PEDRO_SYSTEM_PROMPT || "Você é Pedro, assistente pessoal do Roberto.") + contextoLeads;
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -112,7 +190,7 @@ app.post("/pedro/chat", async (req, res) => {
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
-        system: process.env.PEDRO_SYSTEM_PROMPT || "Você é Pedro, assistente pessoal do Roberto, dono da Papelcenter.",
+        system: systemPrompt,
         messages: [...(historico || []), { role: "user", content: mensagem }]
       })
     });
@@ -129,5 +207,5 @@ app.post("/pedro/chat", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Sistema Roberto backend rodando na porta ${PORT}`);
+  console.log(`🚀 Sistema Roberto backend v2.0 rodando na porta ${PORT}`);
 });
