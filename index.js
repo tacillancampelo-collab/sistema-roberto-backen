@@ -38,7 +38,7 @@ const buscarLeadsRoberto = async () => {
 };
 
 app.get("/", (req, res) => {
-  res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "3.0" });
+  res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "4.0" });
 });
 
 app.get("/teste-kommo", async (req, res) => {
@@ -47,18 +47,16 @@ app.get("/teste-kommo", async (req, res) => {
     const subdomain = process.env.KOMMO_SUBDOMAIN;
     console.log("Testando token Kommo...");
     console.log("Subdomain:", subdomain);
-    console.log("Token (primeiros 20 chars):", token?.substring(0, 20));
-
+    console.log("Token (primeiros 20 chars):", token ? token.substring(0, 20) : "VAZIO");
     const response = await fetch(`https://${subdomain}.kommo.com/api/v4/account`, {
       headers: {
         "Authorization": `Bearer ${token}`
       }
     });
-
     const text = await response.text();
     console.log("Resposta teste:", text.substring(0, 500));
     res.send(text);
-  } catch(e) {
+  } catch (e) {
     res.json({ erro: e.message });
   }
 });
@@ -75,21 +73,21 @@ app.get("/leads", async (req, res) => {
 
 app.post("/webhook/kommo", (req, res) => {
   const payload = req.body;
-  console.log("📥 Webhook Kommo:", JSON.stringify(payload, null, 2));
+  console.log("Webhook Kommo:", JSON.stringify(payload, null, 2));
   try {
-    if (payload.leads?.add) {
-      payload.leads.add.forEach((lead) => {
-        console.log(`🆕 Novo lead: ${lead.name} | ID: ${lead.id}`);
+    if (payload.leads && payload.leads.add) {
+      payload.leads.add.forEach(function(lead) {
+        console.log("Novo lead: " + lead.name + " | ID: " + lead.id);
       });
     }
-    if (payload.leads?.status) {
-      payload.leads.status.forEach((lead) => {
-        console.log(`🔄 Lead mudou de etapa: ${lead.name}`);
+    if (payload.leads && payload.leads.status) {
+      payload.leads.status.forEach(function(lead) {
+        console.log("Lead mudou de etapa: " + lead.name);
       });
     }
-    if (payload.message?.add) {
-      payload.message.add.forEach((msg) => {
-        console.log(`💬 Mensagem: ${msg.author?.name} | ${msg.text}`);
+    if (payload.message && payload.message.add) {
+      payload.message.add.forEach(function(msg) {
+        console.log("Mensagem: " + (msg.author ? msg.author.name : "") + " | " + msg.text);
       });
     }
     res.status(200).json({ ok: true });
@@ -99,10 +97,10 @@ app.post("/webhook/kommo", (req, res) => {
 });
 
 app.get("/webhook/whatsapp", (req, res) => {
-  const VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "sistema-roberto-2024";
-  const mode = req.query["hub.mode"];
-  const token = req.query["hub.verify_token"];
-  const challenge = req.query["hub.challenge"];
+  var VERIFY_TOKEN = process.env.WHATSAPP_VERIFY_TOKEN || "sistema-roberto-2024";
+  var mode = req.query["hub.mode"];
+  var token = req.query["hub.verify_token"];
+  var challenge = req.query["hub.challenge"];
   if (mode === "subscribe" && token === VERIFY_TOKEN) {
     res.status(200).send(challenge);
   } else {
@@ -110,11 +108,16 @@ app.get("/webhook/whatsapp", (req, res) => {
   }
 });
 
-app.post("/webhook/whatsapp", async (req, res) => {
-  const payload = req.body;
+app.post("/webhook/whatsapp", function(req, res) {
+  var payload = req.body;
   try {
-    const mensagem = payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    if (mensagem) console.log(`📩 De: ${mensagem.from} | Texto: ${mensagem.text?.body}`);
+    var entry = payload.entry && payload.entry[0];
+    var changes = entry && entry.changes && entry.changes[0];
+    var value = changes && changes.value;
+    var mensagem = value && value.messages && value.messages[0];
+    if (mensagem) {
+      console.log("De: " + mensagem.from + " | Texto: " + (mensagem.text ? mensagem.text.body : ""));
+    }
     res.status(200).json({ ok: true });
   } catch (error) {
     res.status(200).json({ ok: true });
@@ -122,22 +125,28 @@ app.post("/webhook/whatsapp", async (req, res) => {
 });
 
 app.post("/pedro/chat", async (req, res) => {
-  const { mensagem, historico } = req.body;
-  if (!mensagem) return res.status(400).json({ erro: "Mensagem não informada" });
+  var mensagem = req.body.mensagem;
+  var historico = req.body.historico || [];
+  if (!mensagem) {
+    return res.status(400).json({ erro: "Mensagem não informada" });
+  }
   try {
-    let contextoLeads = "";
+    var contextoLeads = "";
     try {
-      const leads = await buscarLeadsRoberto();
-      const agora = Date.now() / 1000;
-      const leadsParados = leads.filter(l => ((agora - (l.updated_at || 0)) / 3600) > 24);
-      contextoLeads = `\n\nDADOS ATUAIS DO KOMMO:\n- Total de leads do Roberto: ${leads.length}\n- Leads parados há mais de 24h: ${leadsParados.length}\n- Leads: ${leads.map(l => `${l.name} (ID: ${l.id})`).join(", ")}`;
+      var leads = await buscarLeadsRoberto();
+      var agora = Date.now() / 1000;
+      var leadsParados = leads.filter(function(l) {
+        return ((agora - (l.updated_at || 0)) / 3600) > 24;
+      });
+      contextoLeads = "\n\nDADOS ATUAIS DO KOMMO:\n- Total de leads do Roberto: " + leads.length + "\n- Leads parados há mais de 24h: " + leadsParados.length + "\n- Leads: " + leads.map(function(l) { return l.name + " (ID: " + l.id + ")"; }).join(", ");
     } catch (e) {
       console.log("Leads indisponíveis:", e.message);
     }
 
-    const systemPrompt = (process.env.PEDRO_SYSTEM_PROMPT || "Você é Pedro, assistente pessoal do Roberto.") + contextoLeads;
+    var systemPrompt = (process.env.PEDRO_SYSTEM_PROMPT || "Você é Pedro, assistente pessoal do Roberto.") + contextoLeads;
+    var messages = historico.concat([{ role: "user", content: mensagem }]);
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    var response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -148,19 +157,19 @@ app.post("/pedro/chat", async (req, res) => {
         model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
         system: systemPrompt,
-        messages: [...(historico || []), { role: "user", content: mensagem }]
+        messages: messages
       })
     });
 
-    const data = await response.json();
-    res.json({ resposta: data.content?.[0]?.text, ok: true });
+    var data = await response.json();
+    res.json({ resposta: data.content && data.content[0] ? data.content[0].text : "", ok: true });
   } catch (error) {
+    console.error("Erro Pedro:", error);
     res.status(500).json({ erro: "Erro ao processar mensagem" });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🚀 Sistema Roberto backend v3.0 rodando na porta ${PORT}`);
+var PORT = process.env.PORT || 3000;
+app.listen(PORT, function() {
+  console.log("Sistema Roberto backend v4.0 rodando na porta " + PORT);
 });
-```
