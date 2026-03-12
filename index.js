@@ -13,27 +13,51 @@ app.post("/webhook/kommo", (req, res) => {
   console.log("📥 Webhook Kommo recebido:", JSON.stringify(payload, null, 2));
 
   try {
+    const processarLead = (lead) => {
+      const etiquetas = lead.tags || lead.custom_fields || [];
+      const temEtiquetaRoberto = JSON.stringify(lead).toLowerCase().includes("roberto");
+      
+      if (!temEtiquetaRoberto) {
+        console.log(`⏭️ Lead ignorado — não é do Roberto: ${lead.name}`);
+        return;
+      }
+      return true;
+    };
+
     if (payload.leads?.add) {
       payload.leads.add.forEach((lead) => {
-        console.log(`🆕 Novo lead: ${lead.name} | ID: ${lead.id}`);
+        if (processarLead(lead)) {
+          console.log(`🆕 Novo lead do Roberto: ${lead.name} | ID: ${lead.id}`);
+          // TODO: Alerta pro Roberto
+        }
       });
     }
+
     if (payload.leads?.status) {
       payload.leads.status.forEach((lead) => {
-        console.log(`🔄 Lead moveu de etapa: ${lead.name}`);
+        if (processarLead(lead)) {
+          console.log(`🔄 Lead do Roberto mudou de etapa: ${lead.name}`);
+        }
       });
     }
+
     if (payload.leads?.update) {
       payload.leads.update.forEach((lead) => {
-        console.log(`✏️ Lead atualizado: ID ${lead.id}`);
+        if (processarLead(lead)) {
+          console.log(`✏️ Lead do Roberto atualizado: ID ${lead.id}`);
+        }
       });
     }
+
     if (payload.message?.add) {
       payload.message.add.forEach((msg) => {
-        console.log(`💬 Mensagem de: ${msg.author?.name} | ${msg.text}`);
+        console.log(`💬 Mensagem recebida: ${msg.author?.name} | ${msg.text}`);
+        // TODO: Passar pro agente Roberto responder
       });
     }
+
     res.status(200).json({ ok: true });
+
   } catch (error) {
     console.error("Erro no webhook Kommo:", error);
     res.status(200).json({ ok: true });
@@ -60,6 +84,7 @@ app.post("/webhook/whatsapp", async (req, res) => {
     const mensagem = payload.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     if (mensagem) {
       console.log(`📩 De: ${mensagem.from} | Texto: ${mensagem.text?.body}`);
+      // TODO: Passar pro agente Roberto responder
     }
     res.status(200).json({ ok: true });
   } catch (error) {
