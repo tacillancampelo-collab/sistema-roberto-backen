@@ -12,18 +12,20 @@ app.use((req, res, next) => {
   next();
 });
 
-const kommoRequest = async (endpoint, method = "GET", body = null) => {
-  const BASE = `https://${process.env.KOMMO_SUBDOMAIN}.kommo.com/api/v4`;
-  const options = {
-    method,
+const kommoRequest = async (endpoint) => {
+  const url = `https://${process.env.KOMMO_SUBDOMAIN}.kommo.com/api/v4${endpoint}`;
+  const token = process.env.KOMMO_LONG_LIVED_TOKEN;
+  console.log("Chamando Kommo:", url);
+  const response = await fetch(url, {
+    method: "GET",
     headers: {
-      "Authorization": `Bearer ${process.env.KOMMO_LONG_LIVED_TOKEN}`,
+      "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json"
     }
-  };
-  if (body) options.body = JSON.stringify(body);
-  const response = await fetch(`${BASE}${endpoint}`, options);
-  return response.json();
+  });
+  const text = await response.text();
+  console.log("Resposta Kommo:", text.substring(0, 300));
+  return JSON.parse(text);
 };
 
 const buscarLeadsRoberto = async () => {
@@ -36,46 +38,7 @@ const buscarLeadsRoberto = async () => {
 };
 
 app.get("/", (req, res) => {
-  res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "2.0" });
-});
-
-// ROTA DE CALLBACK — troca código por token
-app.get("/kommo/callback", async (req, res) => {
-  const code = req.query.code;
-  if (!code) return res.status(400).json({ erro: "Código não informado" });
-
-  try {
-    const response = await fetch(`https://${process.env.KOMMO_SUBDOMAIN}.kommo.com/oauth2/access_token`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        client_id: process.env.KOMMO_CLIENT_ID,
-        client_secret: process.env.KOMMO_CLIENT_SECRET,
-        grant_type: "authorization_code",
-        code: code,
-        redirect_uri: `https://sistema-roberto-backen-production.up.railway.app/kommo/callback`
-      })
-    });
-
-    const data = await response.json();
-    console.log("Token Kommo:", JSON.stringify(data, null, 2));
-
-    if (data.access_token) {
-      console.log("✅ ACCESS TOKEN:", data.access_token);
-      console.log("✅ REFRESH TOKEN:", data.refresh_token);
-      res.json({ 
-        ok: true, 
-        mensagem: "Token gerado com sucesso! Copie o access_token abaixo e coloque no Railway como KOMMO_LONG_LIVED_TOKEN",
-        access_token: data.access_token,
-        refresh_token: data.refresh_token
-      });
-    } else {
-      res.json({ erro: "Falhou", detalhes: data });
-    }
-  } catch (error) {
-    console.error("Erro callback:", error);
-    res.status(500).json({ erro: error.message });
-  }
+  res.json({ status: "online", sistema: "Roberto - Papelcenter", versao: "3.0" });
 });
 
 app.get("/leads", async (req, res) => {
@@ -83,7 +46,8 @@ app.get("/leads", async (req, res) => {
     const leads = await buscarLeadsRoberto();
     res.json({ leads, total: leads.length, ok: true });
   } catch (error) {
-    res.status(500).json({ erro: "Erro ao buscar leads do Kommo" });
+    console.error("Erro leads:", error.message);
+    res.status(500).json({ erro: error.message });
   }
 });
 
@@ -146,7 +110,7 @@ app.post("/pedro/chat", async (req, res) => {
       const leadsParados = leads.filter(l => ((agora - (l.updated_at || 0)) / 3600) > 24);
       contextoLeads = `\n\nDADOS ATUAIS DO KOMMO:\n- Total de leads do Roberto: ${leads.length}\n- Leads parados há mais de 24h: ${leadsParados.length}\n- Leads: ${leads.map(l => `${l.name} (ID: ${l.id})`).join(", ")}`;
     } catch (e) {
-      console.log("Não foi possível buscar leads:", e.message);
+      console.log("Leads indisponíveis:", e.message);
     }
 
     const systemPrompt = (process.env.PEDRO_SYSTEM_PROMPT || "Você é Pedro, assistente pessoal do Roberto.") + contextoLeads;
@@ -175,5 +139,5 @@ app.post("/pedro/chat", async (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Sistema Roberto backend v2.0 rodando na porta ${PORT}`);
+  console.log(`🚀 Sistema Roberto backend v3.0 rodando na porta ${PORT}`);
 });
