@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Studio — Social Media Editor Premium</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600;700&family=Dancing+Script:wght@400;600;700&family=Raleway:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&family=Josefin+Sans:wght@300;400;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/studio.css" />
+</head>
+<body>
+
+<!-- ═══════════════════ APP SHELL ═══════════════════ -->
+<div id="app">
+
+  <!-- ── HEADER ── -->
+  <header id="studio-header">
+    <div class="header-left">
+      <div class="studio-logo">
+        <span class="logo-icon">✦</span>
+        <span class="logo-text">Studio<em>Premium</em></span>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <div class="format-selector" id="formatSelector">
+        <button class="format-btn active" data-format="post-square" title="Post Quadrado 1:1">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          <span>Post 1:1</span>
+        </button>
+        <button class="format-btn" data-format="post-portrait" title="Post Vertical 4:5">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>
+          <span>Post 4:5</span>
+        </button>
+        <button class="format-btn" data-format="story" title="Story/Reel 9:16">
+          <svg viewBox="0 0 24 24"><rect x="8" y="1" width="8" height="22" rx="2"/></svg>
+          <span>Story</span>
+        </button>
+        <button class="format-btn" data-format="carousel" title="Carrossel">
+          <svg viewBox="0 0 24 24"><rect x="1" y="5" width="14" height="14" rx="2"/><rect x="17" y="7" width="6" height="10" rx="1" opacity=".5"/></svg>
+          <span>Carrossel</span>
+        </button>
+        <button class="format-btn" data-format="reel-cover" title="Capa de Reel">
+          <svg viewBox="0 0 24 24"><rect x="8" y="1" width="8" height="22" rx="2"/><polygon points="10,8 16,12 10,16" fill="currentColor"/></svg>
+          <span>Reel</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <button class="btn-header btn-undo" id="btnUndo" title="Desfazer (Ctrl+Z)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+      </button>
+      <button class="btn-header btn-redo" id="btnRedo" title="Refazer (Ctrl+Y)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 0 1 4-4h12"/></svg>
+      </button>
+      <div class="divider-v"></div>
+      <button class="btn-header" id="btnPreview" title="Preview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="btn-export" id="btnExport">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar
+      </button>
+    </div>
+  </header>
+
+  <!-- ── STUDIO BODY ── -->
+  <div id="studio-body">
+
+    <!-- ── SIDEBAR LEFT: ICON TABS ── -->
+    <nav id="sidebar-tabs">
+      <button class="tab-btn active" data-tab="templates" title="Templates">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Templates</span>
+      </button>
+      <button class="tab-btn" data-tab="text" title="Texto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        <span>Texto</span>
+      </button>
+      <button class="tab-btn" data-tab="elements" title="Elementos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"/><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"/></svg>
+        <span>Elementos</span>
+      </button>
+      <button class="tab-btn" data-tab="media" title="Mídia">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span>Mídia</span>
+      </button>
+      <button class="tab-btn" data-tab="brand" title="Marca">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span>Marca</span>
+      </button>
+      <button class="tab-btn" data-tab="ai" title="IA Criativa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 1 1 7.072 0l-.548.547A3.374 3.374 0 0 0 14 18.469V19a2 2 0 1 1-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+        <span>IA</span>
+      </button>
+    </nav>
+
+    <!-- ── SIDEBAR LEFT: PANEL CONTENT ── -->
+    <aside id="sidebar-panel">
+
+      <!-- TEMPLATES PANEL -->
+      <div class="panel" id="panel-templates">
+        <div class="panel-header">
+          <h2>Templates</h2>
+          <p>Modelos premium para mulheres empreendedoras</p>
+        </div>
+        <div class="panel-search">
+          <input type="text" id="templateSearch" placeholder="Buscar templates..." />
+        </div>
+        <div class="template-categories">
+          <button class="cat-btn active" data-cat="all">Todos</button>
+          <button class="cat-btn" data-cat="vendas">Vendas</button>
+          <button class="cat-btn" data-cat="motivacional">Poder</button>
+          <button class="cat-btn" data-cat="lifestyle">Lifestyle</button>
+          <button class="cat-btn" data-cat="educacional">Dicas</button>
+          <button class="cat-btn" data-cat="lancamento">Lançamento</button>
+        </div>
+        <div class="templates-grid" id="templatesGrid">
+          <!-- Preenchido por templates.js -->
+        </div>
+      </div>
+
+      <!-- TEXT PANEL -->
+      <div class="panel hidden" id="panel-text">
+        <div class="panel-header">
+          <h2>Texto</h2>
+          <p>Tipografias premium para seu conteúdo</p>
+        </div>
+        <div class="text-add-buttons">
+          <button class="add-text-btn featured" data-style="headline" onclick="studio.addText('headline')">
+            <span class="preview-headline">Headline</span>
+            <small>Título Principal</small>
+          </button>
+          <button class="add-text-btn" data-style="subheadline" onclick="studio.addText('subheadline')">
+            <span class="preview-subheadline">Subtítulo</span>
+            <small>Subtítulo</small>
+          </button>
+          <button class="add-text-btn" data-style="body" onclick="studio.addText('body')">
+            <span class="preview-body">Corpo do Texto</span>
+            <small>Texto Corrido</small>
+          </button>
+          <button class="add-text-btn" data-style="quote" onclick="studio.addText('quote')">
+            <span class="preview-quote">"Citação Poderosa"</span>
+            <small>Citação</small>
+          </button>
+          <button class="add-text-btn" data-style="script" onclick="studio.addText('script')">
+            <span class="preview-script">Elegante</span>
+            <small>Script / Cursiva</small>
+          </button>
+          <button class="add-text-btn" data-style="label" onclick="studio.addText('label')">
+            <span class="preview-label">LABEL</span>
+            <small>Etiqueta</small>
+          </button>
+        </div>
+        <div class="section-divider"><span>Fontes Premium</span></div>
+        <div class="font-list" id="fontList">
+          <!-- Preenchido por studio.js -->
+        </div>
+      </div>
+
+      <!-- ELEMENTS PANEL -->
+      <div class="panel hidden" id="panel-elements">
+        <div class="panel-header">
+          <h2>Elementos</h2>
+          <p>Formas, linhas e decorações</p>
+        </div>
+        <div class="section-divider"><span>Formas</span></div>
+        <div class="elements-grid">
+          <button class="element-btn" onclick="studio.addShape('rect')" title="Retângulo">
+            <svg viewBox="0 0 40 40"><rect x="4" y="8" width="32" height="24" rx="2"/></svg>
+          </button>
+          <button class="element-btn" onclick="studio.addShape('circle')" title="Círculo">
+            <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/></svg>
+          </button>
+          <button class="element-btn" onclick="studio.addShape('triangle')" title="Triângulo">
+            <svg viewBox="0 0 40 40"><polygon points="20,4 36,36 4,36"/></svg>
+          </button>
+          <button class="element-btn" onclick="studio.addShape('diamond')" title="Diamante">
+            <svg viewBox="0 0 40 40"><polygon points="20,4 36,20 20,36 4,20"/></svg>
+          </button>
+          <button class="element-btn" onclick="studio.addShape('star')" title="Estrela">
+            <svg viewBox="0 0 40 40"><polygon points="20,4 24.4,14.9 36,16.4 27.5,24.7 29.8,36 20,30.3 10.2,36 12.5,24.7 4,16.4 15.6,14.9"/></svg>
+          </button>
+          <button class="element-btn" onclick="studio.addShape('line')" title="Linha">
+            <svg viewBox="0 0 40 40"><line x1="4" y1="20" x2="36" y2="20" stroke="currentColor" stroke-width="2"/></svg>
+          </button>
+        </div>
+        <div class="section-divider"><span>Backgrounds</span></div>
+        <div class="bg-colors-grid" id="bgColorsGrid">
+          <!-- Preenchido por studio.js -->
+        </div>
+        <div class="section-divider"><span>Gradientes Premium</span></div>
+        <div class="gradients-grid" id="gradientsGrid">
+          <!-- Preenchido por studio.js -->
+        </div>
+      </div>
+
+      <!-- MEDIA PANEL -->
+      <div class="panel hidden" id="panel-media">
+        <div class="panel-header">
+          <h2>Mídia</h2>
+          <p>Imagens e vídeos para seu design</p>
+        </div>
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="imageUpload" accept="image/*" style="display:none" />
+          <div class="upload-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <p class="upload-title">Arraste ou clique para enviar</p>
+          <p class="upload-sub">PNG, JPG, WEBP (máx 10MB)</p>
+          <button class="btn-upload" onclick="document.getElementById('imageUpload').click()">Escolher arquivo</button>
+        </div>
+        <div class="section-divider"><span>Minhas Imagens</span></div>
+        <div class="media-grid" id="mediaGrid">
+          <p class="empty-state">Nenhuma imagem ainda.<br>Faça upload acima.</p>
+        </div>
+      </div>
+
+      <!-- BRAND PANEL -->
+      <div class="panel hidden" id="panel-brand">
+        <div class="panel-header">
+          <h2>Identidade de Marca</h2>
+          <p>Sua paleta e tipografia exclusiva</p>
+        </div>
+        <div class="section-divider"><span>Cores da Marca</span></div>
+        <div class="brand-colors" id="brandColors">
+          <div class="brand-color-add">
+            <input type="color" id="brandColorPicker" value="#C9A84C" />
+            <button onclick="studio.addBrandColor()" class="btn-add-brand">+ Adicionar cor</button>
+          </div>
+          <div class="brand-colors-list" id="brandColorsList">
+            <!-- Cores salvas -->
+          </div>
+        </div>
+        <div class="section-divider"><span>Paletas Luxury</span></div>
+        <div class="luxury-palettes" id="luxuryPalettes">
+          <!-- Preenchido por studio.js -->
+        </div>
+        <div class="section-divider"><span>Fonte da Marca</span></div>
+        <div class="brand-font-selector" id="brandFontSelector">
+          <!-- Preenchido por studio.js -->
+        </div>
+      </div>
+
+      <!-- AI PANEL -->
+      <div class="panel hidden" id="panel-ai">
+        <div class="panel-header">
+          <h2>IA Criativa</h2>
+          <p>Copywriting e estratégia com IA</p>
+        </div>
+        <div class="ai-tools-nav">
+          <button class="ai-nav-btn active" data-tool="copywriter">
+            <span>✍️</span> Copy
+          </button>
+          <button class="ai-nav-btn" data-tool="trends">
+            <span>🔥</span> Trends
+          </button>
+          <button class="ai-nav-btn" data-tool="hashtags">
+            <span>#</span> Tags
+          </button>
+          <button class="ai-nav-btn" data-tool="ideas">
+            <span>💡</span> Ideias
+          </button>
+          <button class="ai-nav-btn" data-tool="carousel">
+            <span>📊</span> Carrossel
+          </button>
+        </div>
+
+        <!-- Copywriter Tool -->
+        <div class="ai-tool-panel" id="tool-copywriter">
+          <div class="ai-form">
+            <label>Nicho / Segmento</label>
+            <input type="text" id="copy-nicho" placeholder="ex: moda feminina premium" />
+            <label>Produto ou Serviço</label>
+            <input type="text" id="copy-produto" placeholder="ex: consultoria de imagem" />
+            <label>Objetivo do Post</label>
+            <select id="copy-objetivo">
+              <option value="engajamento">Engajamento</option>
+              <option value="vendas">Vendas</option>
+              <option value="branding">Branding</option>
+              <option value="educação">Educação</option>
+              <option value="lançamento">Lançamento</option>
+            </select>
+            <label>Tom de Voz</label>
+            <select id="copy-tom">
+              <option value="elegante e empoderador">Elegante &amp; Empoderador</option>
+              <option value="sofisticado e aspiracional">Sofisticado &amp; Aspiracional</option>
+              <option value="próximo e autêntico">Próximo &amp; Autêntico</option>
+              <option value="urgente e direto">Urgente &amp; Direto</option>
+              <option value="inspirador e motivacional">Inspirador &amp; Motivacional</option>
+            </select>
+            <button class="btn-ai-generate" id="btnGenerateCopy" onclick="aiTools.generateCopy()">
+              <span class="btn-ai-icon">✦</span>
+              Gerar Copywriting
+            </button>
+          </div>
+          <div class="ai-results hidden" id="copyResults">
+            <!-- Resultados injetados por ai-tools.js -->
+          </div>
+        </div>
+
+        <!-- Trends Tool -->
+        <div class="ai-tool-panel hidden" id="tool-trends">
+          <div class="ai-form">
+            <p class="ai-tool-desc">Descubra as tendências de conteúdo em alta para mulheres empreendedoras premium no Instagram agora.</p>
+            <button class="btn-ai-generate" id="btnGetTrends" onclick="aiTools.getTrends()">
+              <span class="btn-ai-icon">🔥</span>
+              Analisar Tendências
+            </button>
+          </div>
+          <div class="ai-results hidden" id="trendsResults">
+            <!-- Resultados injetados por ai-tools.js -->
+          </div>
+        </div>
+
+        <!-- Hashtags Tool -->
+        <div class="ai-tool-panel hidden" id="tool-hashtags">
+          <div class="ai-form">
+            <label>Tema do Conteúdo</label>
+            <input type="text" id="hash-tema" placeholder="ex: empreendedorismo feminino" />
+            <label>Seu Nicho</label>
+            <input type="text" id="hash-nicho" placeholder="ex: consultoria, moda, finanças" />
+            <button class="btn-ai-generate" id="btnGetHashtags" onclick="aiTools.getHashtags()">
+              <span class="btn-ai-icon">#</span>
+              Gerar Hashtags Estratégicas
+            </button>
+          </div>
+          <div class="ai-results hidden" id="hashtagsResults">
+            <!-- Resultados injetados por ai-tools.js -->
+          </div>
+        </div>
+
+        <!-- Ideas Tool -->
+        <div class="ai-tool-panel hidden" id="tool-ideas">
+          <div class="ai-form">
+            <label>Seu Nicho</label>
+            <input type="text" id="idea-nicho" placeholder="ex: coaching para mulheres" />
+            <label>Objetivo Principal</label>
+            <select id="idea-objetivo">
+              <option value="crescimento de seguidores">Crescimento de Seguidores</option>
+              <option value="vendas e conversão">Vendas e Conversão</option>
+              <option value="branding e autoridade">Branding e Autoridade</option>
+              <option value="engajamento e comunidade">Engajamento e Comunidade</option>
+            </select>
+            <label>Quantidade de Ideias</label>
+            <select id="idea-quantidade">
+              <option value="5">5 ideias</option>
+              <option value="10" selected>10 ideias</option>
+              <option value="15">15 ideias</option>
+            </select>
+            <button class="btn-ai-generate" id="btnGetIdeas" onclick="aiTools.getContentIdeas()">
+              <span class="btn-ai-icon">💡</span>
+              Gerar Ideias de Conteúdo
+            </button>
+          </div>
+          <div class="ai-results hidden" id="ideasResults">
+            <!-- Resultados injetados por ai-tools.js -->
+          </div>
+        </div>
+
+        <!-- Carousel Script Tool -->
+        <div class="ai-tool-panel hidden" id="tool-carousel">
+          <div class="ai-form">
+            <label>Tema do Carrossel</label>
+            <input type="text" id="car-tema" placeholder="ex: 5 erros que te impedem de vender" />
+            <label>Número de Slides</label>
+            <select id="car-slides">
+              <option value="5">5 slides</option>
+              <option value="7" selected>7 slides</option>
+              <option value="10">10 slides</option>
+            </select>
+            <label>Nicho</label>
+            <input type="text" id="car-nicho" placeholder="ex: negócios femininos" />
+            <button class="btn-ai-generate" id="btnGetCarousel" onclick="aiTools.getCarouselScript()">
+              <span class="btn-ai-icon">📊</span>
+              Criar Roteiro de Carrossel
+            </button>
+          </div>
+          <div class="ai-results hidden" id="carouselResults">
+            <!-- Resultados injetados por ai-tools.js -->
+          </div>
+        </div>
+
+      </div><!-- end panel-ai -->
+    </aside>
+
+    <!-- ── CANVAS AREA ── -->
+    <main id="canvas-area">
+      <div id="canvas-toolbar">
+        <div class="canvas-format-label" id="canvasFormatLabel">Post 1:1 · 1080 × 1080px</div>
+        <div class="canvas-actions">
+          <button class="tool-btn active" id="toolSelect" onclick="studio.setTool('select')" title="Selecionar (V)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-7 2-2 7z"/></svg>
+          </button>
+          <button class="tool-btn" id="toolText" onclick="studio.setTool('text')" title="Adicionar texto (T)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          </button>
+          <button class="tool-btn" id="toolRect" onclick="studio.setTool('rect')" title="Retângulo (R)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          </button>
+        </div>
+        <div class="zoom-control">
+          <button onclick="studio.zoom(-0.1)">−</button>
+          <span id="zoomLabel">100%</span>
+          <button onclick="studio.zoom(0.1)">+</button>
+          <button onclick="studio.zoomFit()" title="Ajustar à tela">⊡</button>
+        </div>
+      </div>
+
+      <div id="canvas-wrapper">
+        <div id="canvas-container">
+          <canvas id="main-canvas"></canvas>
+        </div>
+      </div>
+
+      <!-- Carousel Slides Panel -->
+      <div id="slides-panel" class="hidden">
+        <div class="slides-panel-inner">
+          <div class="slides-list" id="slidesList"></div>
+          <button class="btn-add-slide" onclick="studio.addSlide()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar Slide
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ── RIGHT PANEL: PROPERTIES ── -->
+    <aside id="right-panel">
+      <div id="no-selection-msg">
+        <div class="empty-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1-4.5h-2V7h2v5z"/></svg>
+        </div>
+        <p>Selecione um elemento<br>para editar suas propriedades</p>
+      </div>
+
+      <!-- Text Properties -->
+      <div id="text-properties" class="properties-panel hidden">
+        <div class="prop-section">
+          <h3 class="prop-title">Texto</h3>
+          <textarea id="prop-text-content" rows="4" placeholder="Seu texto aqui..."></textarea>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Tipografia</h3>
+          <select id="prop-font-family" class="prop-select">
+            <option value="Montserrat">Montserrat</option>
+            <option value="Playfair Display">Playfair Display</option>
+            <option value="Cormorant Garamond">Cormorant Garamond</option>
+            <option value="Dancing Script">Dancing Script</option>
+            <option value="Raleway">Raleway</option>
+            <option value="DM Serif Display">DM Serif Display</option>
+            <option value="Josefin Sans">Josefin Sans</option>
+            <option value="Lora">Lora</option>
+          </select>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Tamanho</label>
+              <input type="number" id="prop-font-size" value="48" min="8" max="300" class="prop-input" />
+            </div>
+            <div class="prop-field">
+              <label>Espaçamento</label>
+              <input type="number" id="prop-letter-spacing" value="0" min="-10" max="50" class="prop-input" />
+            </div>
+          </div>
+          <div class="prop-row">
+            <button class="style-btn" id="btn-bold" onclick="studio.toggleBold()" title="Negrito">B</button>
+            <button class="style-btn italic" id="btn-italic" onclick="studio.toggleItalic()" title="Itálico">I</button>
+            <button class="style-btn" id="btn-align-left" onclick="studio.setAlign('left')" title="Esquerda">
+              <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="10" y2="8"/><line x1="1" y1="12" x2="13" y2="12"/></svg>
+            </button>
+            <button class="style-btn" id="btn-align-center" onclick="studio.setAlign('center')" title="Centro">
+              <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="3" y1="8" x2="13" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/></svg>
+            </button>
+            <button class="style-btn" id="btn-align-right" onclick="studio.setAlign('right')" title="Direita">
+              <svg viewBox="0 0 16 16"><line x1="1" y1="4" x2="15" y2="4"/><line x1="5" y1="8" x2="15" y2="8"/><line x1="3" y1="12" x2="15" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Cor do Texto</h3>
+          <div class="color-picker-row">
+            <input type="color" id="prop-text-color" value="#FFFFFF" class="color-swatch-input" />
+            <div class="preset-colors" id="textPresetColors"></div>
+          </div>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Opacidade</h3>
+          <input type="range" id="prop-opacity" min="0" max="100" value="100" class="range-slider" />
+          <span id="prop-opacity-label">100%</span>
+        </div>
+        <div class="prop-actions">
+          <button class="btn-prop-delete" onclick="studio.deleteSelected()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Excluir
+          </button>
+          <button class="btn-prop-duplicate" onclick="studio.duplicateSelected()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Duplicar
+          </button>
+        </div>
+      </div>
+
+      <!-- Shape Properties -->
+      <div id="shape-properties" class="properties-panel hidden">
+        <div class="prop-section">
+          <h3 class="prop-title">Forma</h3>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Largura</label>
+              <input type="number" id="prop-shape-w" class="prop-input" />
+            </div>
+            <div class="prop-field">
+              <label>Altura</label>
+              <input type="number" id="prop-shape-h" class="prop-input" />
+            </div>
+          </div>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Preenchimento</h3>
+          <div class="color-picker-row">
+            <input type="color" id="prop-fill-color" value="#C9A84C" class="color-swatch-input" />
+            <div class="preset-colors" id="fillPresetColors"></div>
+          </div>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Borda</h3>
+          <div class="prop-row">
+            <div class="prop-field">
+              <label>Cor</label>
+              <input type="color" id="prop-stroke-color" value="#FFFFFF" class="color-swatch-input" />
+            </div>
+            <div class="prop-field">
+              <label>Espessura</label>
+              <input type="number" id="prop-stroke-width" value="0" min="0" max="20" class="prop-input" />
+            </div>
+          </div>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Opacidade</h3>
+          <input type="range" id="prop-shape-opacity" min="0" max="100" value="100" class="range-slider" />
+          <span id="prop-shape-opacity-label">100%</span>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Borda arredondada</h3>
+          <input type="range" id="prop-shape-rx" min="0" max="100" value="0" class="range-slider" />
+        </div>
+        <div class="prop-actions">
+          <button class="btn-prop-delete" onclick="studio.deleteSelected()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Excluir
+          </button>
+          <button class="btn-prop-duplicate" onclick="studio.duplicateSelected()">Duplicar</button>
+        </div>
+      </div>
+
+      <!-- Image Properties -->
+      <div id="image-properties" class="properties-panel hidden">
+        <div class="prop-section">
+          <h3 class="prop-title">Imagem</h3>
+          <button class="btn-replace-img" onclick="document.getElementById('imageUpload').click()">Trocar imagem</button>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Opacidade</h3>
+          <input type="range" id="prop-img-opacity" min="0" max="100" value="100" class="range-slider" />
+          <span id="prop-img-opacity-label">100%</span>
+        </div>
+        <div class="prop-section">
+          <h3 class="prop-title">Posição Z</h3>
+          <div class="prop-row">
+            <button class="btn-layer" onclick="studio.bringForward()" title="Trazer para frente">↑ Frente</button>
+            <button class="btn-layer" onclick="studio.sendBackward()" title="Enviar para trás">↓ Trás</button>
+          </div>
+        </div>
+        <div class="prop-actions">
+          <button class="btn-prop-delete" onclick="studio.deleteSelected()">Excluir</button>
+          <button class="btn-prop-duplicate" onclick="studio.duplicateSelected()">Duplicar</button>
+        </div>
+      </div>
+
+    </aside>
+  </div><!-- end studio-body -->
+
+</div><!-- end app -->
+
+<!-- ═══════════════════ EXPORT MODAL ═══════════════════ -->
+<div class="modal-overlay hidden" id="exportModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Exportar Arte</h2>
+      <button class="modal-close" onclick="studio.closeModal('exportModal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="export-options">
+        <label class="export-option active" id="expOptPNG">
+          <input type="radio" name="exportFormat" value="png" checked />
+          <div class="export-option-inner">
+            <span class="export-icon">🖼</span>
+            <strong>PNG</strong>
+            <small>Alta qualidade, fundo transparente</small>
+          </div>
+        </label>
+        <label class="export-option" id="expOptJPG">
+          <input type="radio" name="exportFormat" value="jpg" />
+          <div class="export-option-inner">
+            <span class="export-icon">📷</span>
+            <strong>JPG</strong>
+            <small>Menor tamanho, fundo colorido</small>
+          </div>
+        </label>
+      </div>
+      <div class="export-quality">
+        <label>Qualidade de exportação</label>
+        <div class="quality-options">
+          <button class="quality-btn" data-scale="1">1x (web)</button>
+          <button class="quality-btn active" data-scale="2">2x (recomendado)</button>
+          <button class="quality-btn" data-scale="3">3x (máx)</button>
+        </div>
+      </div>
+      <div class="export-info" id="exportInfo">
+        <!-- Dimensões calculadas -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="studio.closeModal('exportModal')">Cancelar</button>
+      <button class="btn-download" onclick="studio.downloadExport()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Baixar Arte
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TOAST NOTIFICATIONS ═══════════════════ -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════════ SCRIPTS ═══════════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="js/templates.js"></script>
+<script src="js/editor.js"></script>
+<script src="js/ai-tools.js"></script>
+<script src="js/studio.js"></script>
+
+</body>
+</html>
